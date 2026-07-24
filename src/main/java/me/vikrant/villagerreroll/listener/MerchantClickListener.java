@@ -7,8 +7,8 @@ import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantInventory;
-import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class MerchantClickListener implements Listener {
@@ -33,13 +33,17 @@ public class MerchantClickListener implements Listener {
         if (!(event.getWhoClicked() instanceof Player player))
             return;
 
-        MerchantRecipe recipe = merchant.getSelectedRecipe();
-        if (recipe == null)
-            return;
-
-        // Only intercept clicks on our custom reroll trade
-        if (!RerollTrade.isRerollItem(recipe.getResult()))
-            return;
+        // ── Robust reroll detection ────────────────────────────────────────────────────
+        // In Paper 1.21.6, getSelectedRecipe() can return null even when a valid trade
+        // is displayed (server-side slot sync lag). We check the result slot item
+        // directly instead — it's always populated when the player can see the result.
+        ItemStack resultItem = merchant.getItem(2);
+        if (!RerollTrade.isRerollItem(resultItem)) {
+            // Fallback: try getSelectedRecipe() in case the item slot is temporarily null
+            var recipe = merchant.getSelectedRecipe();
+            if (recipe == null || !RerollTrade.isRerollItem(recipe.getResult()))
+                return;
+        }
 
         // Cancel the click so no item is consumed/given
         event.setCancelled(true);
@@ -47,7 +51,9 @@ public class MerchantClickListener implements Listener {
         if (!(merchant.getMerchant() instanceof Villager villager))
             return;
 
-        // Delegate reroll (handles XP reset, level reset, temp villager, UI reopen)
+        plugin.getLogger().info("[VillagerReroll] Reroll triggered by " + player.getName());
+
+        // Delegate reroll (handles XP reset, level reset, temp villager, UI update)
         TradeManager.rerollTrades(plugin, player, villager);
     }
 }
