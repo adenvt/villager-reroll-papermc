@@ -1,6 +1,7 @@
 package me.vikrant.villagerreroll.listener;
 
 import me.vikrant.villagerreroll.trades.RerollTrade;
+import me.vikrant.villagerreroll.util.Constants;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
@@ -35,6 +36,18 @@ public class VillagerOpenListener implements Listener {
 
         boolean hasReroll = recipes.stream()
                 .anyMatch(r -> RerollTrade.isRerollItem(r.getResult()));
+
+        boolean onlyFresh = plugin.getConfig()
+                .getBoolean(Constants.ONLY_FRESH_VILLAGERS, true);
+
+        if (onlyFresh && !RerollTrade.canReroll(villager)) {
+            // Locked villager: strip any leftover persisted reroll offer, never inject.
+            if (hasReroll) {
+                recipes.removeIf(r -> RerollTrade.isRerollItem(r.getResult()));
+                villager.setRecipes(recipes);
+            }
+            return;
+        }
 
         if (hasReroll) return;
 

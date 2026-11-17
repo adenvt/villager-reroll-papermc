@@ -1,0 +1,6 @@
+# Only show the reroll trade for villagers that have never been traded with.
+# Matches vanilla: once a villager has been traded with, its offers are locked
+# and breaking/replacing the workstation no longer regenerates them.
+# Set to false to show the reroll button on every villager (legacy behavior).
+reroll:
+  only-fresh-villagers: true

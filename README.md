@@ -1,118 +1,47 @@
-VillagerReroll 🧙‍♂️🔁
+# VillagerReroll
 
-A Paper / Spigot Minecraft plugin that allows rerolling villager trades directly from the vanilla trade UI, without breaking job site blocks.
+VillagerReroll is a Paper plugin that lets players generate fresh villager trades from the villager’s trade screen. It uses Minecraft’s own trade generation and leaves the villager’s profession and workstation connection intact.
 
-This plugin preserves true vanilla trade logic while providing a smooth, intuitive reroll experience.
+## How to reroll trades
 
-✨ Features
+1. Right-click a villager to open its trade screen.
+2. Select the **Reroll Trades** offer at the bottom of the list.
+3. The villager’s offers are replaced with freshly generated trades.
 
-🔁 Reroll villager trades from inside the vanilla trade screen
-🧠 Uses true vanilla trade generation (no hardcoded trades)
-🧱 Job site blocks remain untouched
-⭐ Reroll appears as a fake villager trade (feels native)
-🛡️ Safe & future-proof (no NMS, no packet hacks)
-🚀 Compatible with Paper 1.20.5+ / 1.21+
+The offer uses a placeholder emerald ingredient, but clicking it does not consume an emerald. The plugin refreshes the open trade screen when possible and reopens it if Minecraft has already closed it.
 
-📸 How It Works (In-Game)
+## Which villagers can be rerolled?
 
-Open a villager’s trade UI normally
-Scroll to the bottom
-Click the trade:
-1 Emerald → ⭐ 🔁 Reroll Trades
+By default, the reroll offer is available only for villagers that have never been traded with. This follows vanilla’s behavior: once a villager has been traded with, changing its workstation does not generate a new set of offers.
 
+To allow rerolling for all villagers, set this option in `plugins/VillagerReroll/config.yml`:
 
-Trades reroll instantly
+```yaml
+reroll:
+  only-fresh-villagers: false
+```
 
-The emerald is NOT consumed
-That’s it — no commands, no GUIs, no block breaking.
+Restart the server after changing the setting.
 
-🧠 Technical Overview
-Vanilla-Accurate Trade Rerolling
-Instead of defining custom trades, the plugin:
-Spawns a temporary villager
-Lets Minecraft generate trades naturally
-Copies those trades
-Applies them to the real villager
-Deletes the temporary villager
+## Installation
 
-This ensures:
-Enchantments like Mending, Sharpness, etc. work naturally
-Prices, levels, and randomness stay vanilla-accurate
-Future Minecraft updates automatically work
+You’ll need Java 21 and a Paper 1.21.6 server.
 
-🧩 Why the “Fake Trade” Approach?
+1. Build the plugin:
 
-Minecraft does not allow:
-Buttons inside the villager UI
-Zero-ingredient trades
-So the plugin uses a dummy trade:
-1 Emerald → ⭐ Reroll Trades
+   ```bash
+   ./gradlew build
+   ```
 
+2. Copy the JAR from `build/libs/` into your server’s `plugins` folder.
+3. Restart the server.
 
-On click:
-The trade is cancelled
-No items are consumed
-Trades reroll safely
-This is the only valid, vanilla-safe approach.
+## How it works
 
-📁 Project Structure
-VillagerReroll/
-├── listener/
-│   ├── VillagerOpenListener.java     # Injects reroll trade
-│   └── MerchantClickListener.java    # Detects reroll click
-│
-├── trade/
-│   ├── TradeManager.java             # Reroll orchestration
-│   ├── VanillaTradeCloner.java       # Vanilla trade cloning
-│   └── RerollTrade.java              # Fake reroll trade
-│
-├── VillagerRerollPlugin.java         # Plugin entry point
-├── plugin.yml
-└── README.md
+When a player rerolls, the plugin creates a temporary villager with the same profession and villager type. Minecraft generates that villager’s trades, which the plugin then applies to the original villager. The temporary villager is removed afterward.
 
+The original villager keeps its profession and workstation connection. The plugin also resets its trade level and experience as part of the reroll. During a clean shutdown, it removes the placeholder offer from loaded villagers.
 
-This structure follows real production plugin architecture.
+## License
 
-⚙️ Installation
-
-Build the plugin:
-
-./gradlew clean build
-
-Copy the JAR from:
-
-build/libs/
-
-Paste it into your server’s:
-/plugins
-
-
-Restart the server
-
-📋 Requirements
-
-Java 17+
-PaperMC (recommended)
-Minecraft 1.20.5+ / 1.21+
-
-⚠️ Known Behavior (Not a Bug)
-
-After rerolling, the mouse cursor resets to the center
-This is vanilla client behavior
-Happens whenever a GUI is closed & reopened
-Cannot be controlled by plugins
-The plugin already handles this in the cleanest possible way.
-
-🔮 Planned Enhancements (Optional)
-
-Cooldown per villager
-Configurable emerald / XP cost
-Permission-based visibility
-Config.yml support
-Limit rerolls after trading
-
-
-📜 License
-
-Free to use, modify, and learn from.
-Perfect as a learning project or production plugin base.
+This repository does not currently include a license file. Ask the project owner about reuse and distribution terms.

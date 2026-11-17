@@ -18,6 +18,8 @@ public class VillagerRerollPlugin extends JavaPlugin {
     @Override
     public void onEnable() {
 
+        saveDefaultConfig();
+
         Bukkit.getPluginManager().registerEvents(
                 new VillagerOpenListener(this),
                 this

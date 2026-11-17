@@ -1,6 +1,7 @@
 package me.vikrant.villagerreroll.trades;
 
 import org.bukkit.Material;
+import org.bukkit.entity.Villager;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.MerchantRecipe;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -30,6 +31,26 @@ public class RerollTrade {
         recipe.setPriceMultiplier(0f);
 
         return recipe;
+    }
+
+    /**
+     * True when this villager has never been traded with, i.e. vanilla would still
+     * regenerate its offers on workstation break/replace.
+     */
+    public static boolean canReroll(Villager villager) {
+        if (villager.getProfession() == Villager.Profession.NONE) return false;
+
+        // Villager XP is only awarded by trading.
+        if (villager.getVillagerExperience() > 0) return false;
+
+        // Trade uses are reset by restocking, so this only catches a villager that
+        // traded and had its XP zeroed before its first restock.
+        for (MerchantRecipe recipe : villager.getRecipes()) {
+            if (isRerollItem(recipe.getResult())) continue;
+            if (recipe.getUses() > 0) return false;
+        }
+
+        return true;
     }
 
     public static boolean isRerollItem(ItemStack item) {

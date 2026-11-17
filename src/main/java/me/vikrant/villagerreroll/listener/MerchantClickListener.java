@@ -2,6 +2,7 @@ package me.vikrant.villagerreroll.listener;
 
 import me.vikrant.villagerreroll.trades.RerollTrade;
 import me.vikrant.villagerreroll.trades.TradeManager;
+import me.vikrant.villagerreroll.util.Constants;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Villager;
 import org.bukkit.event.EventHandler;
@@ -49,6 +50,10 @@ public class MerchantClickListener implements Listener {
         event.setCancelled(true);
 
         if (!(merchant.getMerchant() instanceof Villager villager))
+            return;
+
+        if (plugin.getConfig().getBoolean(Constants.ONLY_FRESH_VILLAGERS, true)
+                && !RerollTrade.canReroll(villager))
             return;
 
         plugin.getLogger().info("[VillagerReroll] Reroll triggered by " + player.getName());
